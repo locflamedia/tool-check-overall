@@ -757,6 +757,7 @@ export default function Home() {
                       {globalLoading && <Skeleton className="h-5 w-20" />}
                       {!globalLoading &&
                         accessibilityResult &&
+                        accessibilityResult.imgAltTagsMissing && // Add this check
                         renderScoreBadge(
                           calculateScore(
                             accessibilityResult.imgAltTagsMissing,
@@ -774,7 +775,8 @@ export default function Home() {
                           <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">
                             Missing Image Alt Tags (from SEO scan):
                           </p>
-                          {accessibilityResult.imgAltTagsMissing.length > 0 ? (
+                          {accessibilityResult.imgAltTagsMissing &&
+                          accessibilityResult.imgAltTagsMissing.length > 0 ? (
                             <ul className="list-disc list-inside ml-4 space-y-1 text-sm text-yellow-600 dark:text-yellow-400">
                               {accessibilityResult.imgAltTagsMissing.map(
                                 (src: string, idx: number) => (
