@@ -9,12 +9,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const result = await scanTlsSecurityIssues(url);
+    const result = await scanTlsSecurityIssues();
 
     if (result.errors.length > 0) {
       return NextResponse.json(
         { error: result.errors.join(", ") },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { error: `TLS Security Issues scan failed: ${error.message}` },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

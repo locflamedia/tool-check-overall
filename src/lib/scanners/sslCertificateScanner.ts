@@ -16,7 +16,7 @@ interface SslCertificateResult {
 }
 
 export async function scanSslCertificate(
-  url: string,
+  url: string
 ): Promise<SslCertificateResult> {
   const result: SslCertificateResult = {
     subject: {},
@@ -48,8 +48,6 @@ export async function scanSslCertificate(
         () => {
           const peerCertificate = socket.getPeerCertificate(true);
           if (peerCertificate) {
-            result.subject = peerCertificate.subject;
-            result.issuer = peerCertificate.issuer;
             result.expires = peerCertificate.valid_to;
             result.renewed = peerCertificate.valid_from; // Using valid_from as renewed date
             result.serialNum = peerCertificate.serialNumber;
@@ -67,7 +65,7 @@ export async function scanSslCertificate(
           }
           socket.destroy();
           resolve();
-        },
+        }
       );
 
       socket.on("error", (err) => {
