@@ -53,7 +53,7 @@ export async function scanRobotsTxt(url: string): Promise<RobotsTxtResult> {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `HTTP Error: ${error.response.status} - ${error.response.statusText}`
+          `HTTP Error: ${error.response.status} - ${error.response.statusText}`,
         );
       } else if (error.request) {
         result.errors.push("No response received from robots.txt server.");

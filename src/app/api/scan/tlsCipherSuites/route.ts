@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     if (result.errors.length > 0) {
       return NextResponse.json(
         { error: result.errors.join(", ") },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { error: `TLS Cipher Suites scan failed: ${error.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

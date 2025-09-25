@@ -29,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 // Define individual result interfaces for type safety and clarity
 interface RobotsTxtResult {
@@ -301,7 +302,7 @@ export default function Home() {
   const { setTheme } = useTheme();
 
   // Derived state for a URL that is always valid for the URL constructor
-  const displayUrlForTools = url.startsWith("http") ? url : `https://${url}`;
+  const _displayUrlForTools = url.startsWith("http") ? url : `https://${url}`;
 
   // Individual loading states and results for each scanner
   const [robotsTxtLoading, setRobotsTxtLoading] = useState<boolean>(false);
@@ -590,33 +591,33 @@ export default function Home() {
 
     // Run independent scans in parallel
     const [
-      robotsTxtPromise,
-      seoPromise,
-      pagespeedPromise,
-      securityPromise,
+      _robotsTxtResult,
+      _seoResult,
+      _pagespeedResult,
+      _securityResult,
       // New scanners
-      sslCertificatePromise,
-      headersPromise,
-      dnsRecordsPromise,
-      securityTxtPromise,
-      threatsPromise,
-      dnssecPromise,
-      hstsCheckPromise,
-      tlsSecurityIssuesPromise,
-      archiveHistoryPromise,
-      globalRankingPromise,
-      tlsCipherSuitesPromise,
-      tlsHandshakeSimulationPromise,
-      redirectsPromise,
-      linkedPagesPromise,
+      _sslCertificateResult,
+      _headersResult,
+      _dnsRecordsResult,
+      _securityTxtResult,
+      _threatsResult,
+      _dnssecResult,
+      _hstsCheckResult,
+      _tlsSecurityIssuesResult,
+      _archiveHistoryResult,
+      _globalRankingResult,
+      _tlsCipherSuitesResult,
+      _tlsHandshakeSimulationResult,
+      _redirectsResult,
+      _linkedPagesResult,
       // New scanners (Batch 6)
-      carbonFootprintPromise,
-      blockListsPromise,
-      uptimeResponseTimePromise,
-      shareSocialPromise,
-      faviconPromise,
-      ssrPromise,
-      thirdPartyScriptsPromise, // Thêm dòng này
+      _carbonFootprintResult,
+      _blockListsResult,
+      _uptimeResponseTimeResult,
+      _shareSocialResult,
+      _faviconResult,
+      _ssrResult,
+      _thirdPartyScriptsResult,
     ] = await Promise.allSettled([
       runScan(
         "robotsTxt",
@@ -743,12 +744,12 @@ export default function Home() {
 
     // Handle dependent scans
     let currentRobotsTxtResult: RobotsTxtResult | null = null;
-    if (robotsTxtPromise.status === "fulfilled") {
+    if (_robotsTxtResult.status === "fulfilled") {
       currentRobotsTxtResult =
-        robotsTxtPromise.value as unknown as RobotsTxtResult;
+        _robotsTxtResult.value as unknown as RobotsTxtResult;
     } else {
       setRobotsTxtError(
-        robotsTxtPromise.reason ||
+        _robotsTxtResult.reason ||
           "Failed to get robots.txt data for sitemap scan dependency"
       );
     }
@@ -768,8 +769,8 @@ export default function Home() {
     }
 
     let currentSeoResult: SeoResult | null = null;
-    if (seoPromise.status === "fulfilled") {
-      currentSeoResult = seoPromise.value as unknown as SeoResult;
+    if (_seoResult.status === "fulfilled") {
+      currentSeoResult = _seoResult.value as unknown as SeoResult;
       setAccessibilityResult({
         imgAltTagsMissing: currentSeoResult.imgAltTagsMissing,
         futureEnhancements:
@@ -777,7 +778,7 @@ export default function Home() {
       });
     } else {
       setSeoError(
-        seoPromise.reason ||
+        _seoResult.reason ||
           "Failed to get SEO data for accessibility scan dependency"
       );
       setAccessibilityError(
@@ -833,7 +834,7 @@ export default function Home() {
       <div className="w-full max-w-[1440px] shadow-lg mt-8 mb-8">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-bold">
-            Website Auditor
+            Website Check List
           </CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -984,7 +985,7 @@ export default function Home() {
                         </div>
                       ) : (
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze robots.txt.
+                          Click &apos;Scan Website&apos; to analyze robots.txt.
                         </p>
                       )}
                     </CardContent>
@@ -2624,10 +2625,12 @@ export default function Home() {
                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                   Preview:
                                 </span>
-                                <img
+                                <Image
                                   src={faviconResult.url}
                                   alt="Favicon Preview"
                                   className="max-h-10 max-w-[100px] object-contain rounded-md"
+                                  width={100}
+                                  height={100}
                                 />
                               </div>
                             )}
@@ -2912,13 +2915,14 @@ export default function Home() {
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 OG Image:
                               </span>
-                              <img
+                              <Image
                                 src={shareSocialResult.ogImage}
                                 alt={
                                   shareSocialResult.ogTitle ||
                                   "Open Graph Image"
                                 }
                                 className="max-w-[300px] object-contain rounded-md"
+                                width={300}
                               />
                             </div>
                           )}
@@ -2945,13 +2949,14 @@ export default function Home() {
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Twitter Image:
                               </span>
-                              <img
+                              <Image
                                 src={shareSocialResult.twitterImage}
                                 alt={
                                   shareSocialResult.twitterTitle ||
                                   "Twitter Image"
                                 }
                                 className="max-w-[300px] object-contain rounded-md"
+                                width={300}
                               />
                             </div>
                           )}

@@ -31,13 +31,13 @@ export async function scanSecurityTxt(url: string): Promise<SecurityTxtResult> {
       result.content = null;
     } else {
       result.errors.push(
-        `Failed to fetch security.txt: HTTP status ${response.status}`
+        `Failed to fetch security.txt: HTTP status ${response.status}`,
       );
     }
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       result.errors.push(
-        `Failed to fetch security.txt: HTTP status ${error.response.status}`
+        `Failed to fetch security.txt: HTTP status ${error.response.status}`,
       );
     } else {
       result.errors.push(`Security.txt scan failed: ${error.message}`);

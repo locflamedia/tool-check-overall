@@ -33,7 +33,7 @@ export async function scanSSR(url: string): Promise<SSRResult> {
     if (html.includes('id="_sapper"')) {
       result.isSSR = true;
       result.ssrIndicators.push(
-        "Sapper/SvelteKit SSR/SSG indicator (_sapper div)"
+        "Sapper/SvelteKit SSR/SSG indicator (_sapper div)",
       );
     }
     // Add more framework-specific indicators
@@ -64,7 +64,7 @@ export async function scanSSR(url: string): Promise<SSRResult> {
           // Only add if not already marked by framework indicators
           result.isSSR = true;
           result.ssrIndicators.push(
-            "Substantial pre-rendered content in <body>"
+            "Substantial pre-rendered content in <body>",
           );
         }
       }

@@ -27,11 +27,11 @@ export async function scanShareSocial(url: string): Promise<ShareSocialResult> {
 
     const getMetaContent = (
       htmlString: string,
-      property: string
+      property: string,
     ): string | null => {
       const regex = new RegExp(
         `<meta[^>]*?property="${property}"[^>]*?content="([^"]*?)"`,
-        "i"
+        "i",
       );
       const match = htmlString.match(regex);
       return match && match[1] ? match[1] : null;
@@ -39,11 +39,11 @@ export async function scanShareSocial(url: string): Promise<ShareSocialResult> {
 
     const getTwitterMetaContent = (
       htmlString: string,
-      name: string
+      name: string,
     ): string | null => {
       const regex = new RegExp(
         `<meta[^>]*?name="${name}"[^>]*?content="([^"]*?)"`,
-        "i"
+        "i",
       );
       const match = htmlString.match(regex);
       return match && match[1] ? match[1] : null;
@@ -56,17 +56,17 @@ export async function scanShareSocial(url: string): Promise<ShareSocialResult> {
     result.twitterTitle = getTwitterMetaContent(html, "twitter:title");
     result.twitterDescription = getTwitterMetaContent(
       html,
-      "twitter:description"
+      "twitter:description",
     );
     result.twitterImage = getTwitterMetaContent(html, "twitter:image");
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       result.errors.push(
-        `Error fetching URL for share social scan: ${error.message}`
+        `Error fetching URL for share social scan: ${error.message}`,
       );
     } else {
       result.errors.push(
-        `Unknown error during share social scan: ${error.message}`
+        `Unknown error during share social scan: ${error.message}`,
       );
     }
   }

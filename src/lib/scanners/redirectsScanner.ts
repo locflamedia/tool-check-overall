@@ -62,7 +62,7 @@ export async function scanRedirects(url: string): Promise<RedirectsResult> {
         if (result.redirectCount > 10) {
           // Prevent infinite redirect loops
           result.errors.push(
-            "Too many redirects, potential redirect loop detected."
+            "Too many redirects, potential redirect loop detected.",
           );
           break;
         }
@@ -76,11 +76,11 @@ export async function scanRedirects(url: string): Promise<RedirectsResult> {
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       result.errors.push(
-        `HTTP status ${error.response.status} when scanning for redirects.`
+        `HTTP status ${error.response.status} when scanning for redirects.`,
       );
     } else if (axios.isAxiosError(error) && error.request) {
       result.errors.push(
-        `No response received for redirects scan: ${error.message}`
+        `No response received for redirects scan: ${error.message}`,
       );
     } else {
       result.errors.push(`Redirects scan failed: ${error.message}`);

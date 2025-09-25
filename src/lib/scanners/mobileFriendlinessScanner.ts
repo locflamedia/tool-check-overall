@@ -9,7 +9,7 @@ interface MobileFriendlinessResult {
 }
 
 export async function scanMobileFriendliness(
-  url: string
+  url: string,
 ): Promise<MobileFriendlinessResult> {
   const result: MobileFriendlinessResult = {
     hasViewportMeta: false,
@@ -25,13 +25,13 @@ export async function scanMobileFriendliness(
     result.hasViewportMeta = $('head meta[name="viewport"]').length > 0;
   } catch (error: any) {
     result.errors.push(
-      `Error fetching page for viewport check (${url}): ${error.message}`
+      `Error fetching page for viewport check (${url}): ${error.message}`,
     );
   }
 
   // Use Google Mobile-Friendly Test API
   result.errors.push(
-    "Google Mobile-Friendly Test API has been retired as of December 1, 2023. This feature is no longer available."
+    "Google Mobile-Friendly Test API has been retired as of December 1, 2023. This feature is no longer available.",
   );
   // const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY; // Reusing the same API key
   // if (!apiKey) {

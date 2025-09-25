@@ -13,8 +13,6 @@ export async function scanHstsCheck(url: string): Promise<HstsCheckResult> {
   };
 
   try {
-    const parsedUrl = new URL(url);
-
     const response = await axios.head(url, { maxRedirects: 5 });
 
     if (response.headers["strict-transport-security"]) {

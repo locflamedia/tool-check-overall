@@ -49,7 +49,7 @@ export async function scanLinkedPages(url: string): Promise<LinkedPagesResult> {
             text: text,
           });
         } catch (e) {
-          // Ignore invalid URLs
+          console.error(e);
         }
       }
     });

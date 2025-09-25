@@ -27,7 +27,6 @@ export async function scanArchiveHistory(
 
   try {
     const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname;
 
     // In a real-world scenario, this would involve calling the Internet Archive's CDX API
     // or a similar service to fetch historical data.

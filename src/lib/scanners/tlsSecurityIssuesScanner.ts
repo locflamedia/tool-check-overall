@@ -1,14 +1,10 @@
-import { URL } from "url";
-
 interface TlsSecurityIssuesResult {
   issuesFound: boolean;
   details: string[] | null;
   errors: string[];
 }
 
-export async function scanTlsSecurityIssues(
-  url: string
-): Promise<TlsSecurityIssuesResult> {
+export async function scanTlsSecurityIssues(): Promise<TlsSecurityIssuesResult> {
   const result: TlsSecurityIssuesResult = {
     issuesFound: false,
     details: null,

@@ -8,7 +8,7 @@ interface GlobalRankingResult {
 }
 
 export async function scanGlobalRanking(
-  url: string
+  url: string,
 ): Promise<GlobalRankingResult> {
   const result: GlobalRankingResult = {
     globalRank: null,
@@ -25,10 +25,10 @@ export async function scanGlobalRanking(
     result.globalRank = Math.floor(Math.random() * 500000) + 1; // Random rank up to 500,000
     const change = Math.random() * 1 - 0.5; // Random change between -0.5 and +0.5
     result.changeSinceYesterday = `${change > 0 ? "+" : ""}${change.toFixed(
-      2
+      2,
     )}%`;
     result.historicalAverageRank = Math.floor(
-      result.globalRank * (1 + Math.random() * 0.2 - 0.1)
+      result.globalRank * (1 + Math.random() * 0.2 - 0.1),
     ); // +/- 10% of current rank
 
     // Simulate network delay

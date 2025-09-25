@@ -16,7 +16,7 @@ interface SslCertificateResult {
 }
 
 export async function scanSslCertificate(
-  url: string
+  url: string,
 ): Promise<SslCertificateResult> {
   const result: SslCertificateResult = {
     subject: {},
@@ -67,7 +67,7 @@ export async function scanSslCertificate(
           }
           socket.destroy();
           resolve();
-        }
+        },
       );
 
       socket.on("error", (err) => {

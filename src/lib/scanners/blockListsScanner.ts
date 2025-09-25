@@ -1,5 +1,3 @@
-import { URL } from "url";
-
 interface BlockListEntry {
   provider: string;
   status: "Listed" | "Not Listed" | "N/A";

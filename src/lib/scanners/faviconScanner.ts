@@ -37,7 +37,7 @@ export async function scanFavicon(pageUrl: string): Promise<FaviconResult> {
         } else if (!faviconUrl.startsWith("http")) {
           faviconUrl = `${parsedPageUrl.href.substring(
             0,
-            parsedPageUrl.href.lastIndexOf("/")
+            parsedPageUrl.href.lastIndexOf("/"),
           )}/${faviconUrl}`;
         }
 
@@ -51,7 +51,7 @@ export async function scanFavicon(pageUrl: string): Promise<FaviconResult> {
     } catch (htmlError: any) {
       // Log HTML fetch error but don't stop, proceed to check default /favicon.ico
       result.errors.push(
-        `Error fetching page HTML for favicon links: ${htmlError.message}`
+        `Error fetching page HTML for favicon links: ${htmlError.message}`,
       );
     }
 
@@ -70,7 +70,7 @@ export async function scanFavicon(pageUrl: string): Promise<FaviconResult> {
       }
     } catch (defaultFaviconError: any) {
       result.errors.push(
-        `Error checking default /favicon.ico: ${defaultFaviconError.message}`
+        `Error checking default /favicon.ico: ${defaultFaviconError.message}`,
       );
     }
 

@@ -23,7 +23,7 @@ export interface ThirdPartyScriptsResult {
 }
 
 export async function scanThirdPartyScripts(
-  pageUrl: string
+  pageUrl: string,
 ): Promise<ThirdPartyScriptsResult> {
   const result: ThirdPartyScriptsResult = {
     totalScripts: 0,
@@ -86,7 +86,7 @@ export async function scanThirdPartyScripts(
         } else if (!scriptUrl.startsWith("http")) {
           scriptUrl = `${parsedPageUrl.href.substring(
             0,
-            parsedPageUrl.href.lastIndexOf("/")
+            parsedPageUrl.href.lastIndexOf("/"),
           )}/${scriptUrl}`;
         }
 
@@ -143,7 +143,7 @@ export async function scanThirdPartyScripts(
                 type: "external",
                 status: scriptStatus,
               });
-            })()
+            })(),
           );
         }
       } else {
@@ -167,11 +167,11 @@ export async function scanThirdPartyScripts(
   } catch (mainError: any) {
     if (axios.isAxiosError(mainError)) {
       result.errors.push(
-        `Error fetching page HTML for third-party scripts scan: ${mainError.message}`
+        `Error fetching page HTML for third-party scripts scan: ${mainError.message}`,
       );
     } else {
       result.errors.push(
-        `Unknown error during third-party scripts scan: ${mainError.message}`
+        `Unknown error during third-party scripts scan: ${mainError.message}`,
       );
     }
   }

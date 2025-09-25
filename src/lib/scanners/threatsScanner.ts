@@ -1,11 +1,9 @@
-import { URL } from "url";
-
 interface ThreatsResult {
   phishingStatus: "No Phishing Found" | "Phishing Detected" | "N/A";
   errors: string[];
 }
 
-export async function scanThreats(url: string): Promise<ThreatsResult> {
+export async function scanThreats(): Promise<ThreatsResult> {
   const result: ThreatsResult = {
     phishingStatus: "N/A",
     errors: [],

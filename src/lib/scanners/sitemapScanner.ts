@@ -10,7 +10,7 @@ interface SitemapResult {
 async function fetchAndParseSitemap(
   sitemapUrl: string,
   visitedSitemaps: Set<string>,
-  result: SitemapResult
+  result: SitemapResult,
 ) {
   if (visitedSitemaps.has(sitemapUrl)) {
     return;
@@ -43,20 +43,20 @@ async function fetchAndParseSitemap(
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `Sitemap HTTP Error (${sitemapUrl}): ${error.response.status} - ${error.response.statusText}`
+          `Sitemap HTTP Error (${sitemapUrl}): ${error.response.status} - ${error.response.statusText}`,
         );
       } else if (error.request) {
         result.errors.push(
-          `No response received from sitemap server (${sitemapUrl}).`
+          `No response received from sitemap server (${sitemapUrl}).`,
         );
       } else {
         result.errors.push(
-          `Sitemap Request Error (${sitemapUrl}): ${error.message}`
+          `Sitemap Request Error (${sitemapUrl}): ${error.message}`,
         );
       }
     } else {
       result.errors.push(
-        `Sitemap Unknown Error (${sitemapUrl}): ${error.message}`
+        `Sitemap Unknown Error (${sitemapUrl}): ${error.message}`,
       );
     }
   }
@@ -64,7 +64,7 @@ async function fetchAndParseSitemap(
 
 export async function scanSitemap(
   baseUrl: string,
-  robotsTxtSitemaps: string[] = []
+  robotsTxtSitemaps: string[] = [],
 ): Promise<SitemapResult> {
   const result: SitemapResult = {
     sitemapUrls: [],

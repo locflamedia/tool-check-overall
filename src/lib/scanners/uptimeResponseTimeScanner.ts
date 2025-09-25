@@ -7,7 +7,7 @@ export interface UptimeResponseTimeResult {
 }
 
 export async function scanUptimeResponseTime(
-  url: string
+  url: string,
 ): Promise<UptimeResponseTimeResult> {
   const result: UptimeResponseTimeResult = {
     responseTimeMs: null,
@@ -27,7 +27,7 @@ export async function scanUptimeResponseTime(
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `HTTP status ${error.response.status} when checking domain.`
+          `HTTP status ${error.response.status} when checking domain.`,
         );
       } else if (error.request) {
         result.errors.push(`No response received: ${error.message}`);

@@ -1,5 +1,3 @@
-import { URL } from "url";
-
 interface TlsHandshakeSimulationResult {
   tlsVersion: string | null;
   cipherSuite: string | null;
@@ -7,9 +5,7 @@ interface TlsHandshakeSimulationResult {
   errors: string[];
 }
 
-export async function scanTlsHandshakeSimulation(
-  url: string
-): Promise<TlsHandshakeSimulationResult> {
+export async function scanTlsHandshakeSimulation(): Promise<TlsHandshakeSimulationResult> {
   const result: TlsHandshakeSimulationResult = {
     tlsVersion: null,
     cipherSuite: null,

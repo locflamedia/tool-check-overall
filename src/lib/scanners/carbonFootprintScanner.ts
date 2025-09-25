@@ -1,6 +1,3 @@
-import axios from "axios";
-import { URL } from "url";
-
 interface CarbonFootprintResult {
   estimatedCarbonKg: number | null;
   comparisonToAverage: string | null; // e.g., "-10% vs average"

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     console.error("SEO scanning error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -73,18 +73,18 @@ export async function scanSeo(url: string): Promise<SeoResult> {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `HTTP Error fetching page (${url}): ${error.response.status} - ${error.response.statusText}`
+          `HTTP Error fetching page (${url}): ${error.response.status} - ${error.response.statusText}`,
         );
       } else if (error.request) {
         result.errors.push(`No response received when fetching page (${url}).`);
       } else {
         result.errors.push(
-          `Request Error fetching page (${url}): ${error.message}`
+          `Request Error fetching page (${url}): ${error.message}`,
         );
       }
     } else {
       result.errors.push(
-        `Unknown Error fetching page (${url}): ${error.message}`
+        `Unknown Error fetching page (${url}): ${error.message}`,
       );
     }
   }

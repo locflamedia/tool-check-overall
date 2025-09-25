@@ -38,7 +38,6 @@ export async function scanHeaders(url: string): Promise<HeadersResult> {
 
   try {
     const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname;
 
     const response = await axios.head(url, { maxRedirects: 5 }); // Use HEAD request to get headers without downloading body
 

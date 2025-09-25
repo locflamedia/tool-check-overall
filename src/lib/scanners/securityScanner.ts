@@ -10,7 +10,7 @@ interface SecurityResult {
 }
 
 export async function scanSecurityHeaders(
-  url: string
+  url: string,
 ): Promise<SecurityResult> {
   const result: SecurityResult = {
     hsts: false,
@@ -34,20 +34,20 @@ export async function scanSecurityHeaders(
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `HTTP Error fetching headers (${url}): ${error.response.status} - ${error.response.statusText}`
+          `HTTP Error fetching headers (${url}): ${error.response.status} - ${error.response.statusText}`,
         );
       } else if (error.request) {
         result.errors.push(
-          `No response received when fetching headers (${url}).`
+          `No response received when fetching headers (${url}).`,
         );
       } else {
         result.errors.push(
-          `Request Error fetching headers (${url}): ${error.message}`
+          `Request Error fetching headers (${url}): ${error.message}`,
         );
       }
     } else {
       result.errors.push(
-        `Unknown Error fetching headers (${url}): ${error.message}`
+        `Unknown Error fetching headers (${url}): ${error.message}`,
       );
     }
   }

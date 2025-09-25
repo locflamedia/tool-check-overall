@@ -1,13 +1,9 @@
-import { URL } from "url";
-
 interface TlsCipherSuitesResult {
   cipherSuites: string[];
   errors: string[];
 }
 
-export async function scanTlsCipherSuites(
-  url: string
-): Promise<TlsCipherSuitesResult> {
+export async function scanTlsCipherSuites(): Promise<TlsCipherSuitesResult> {
   const result: TlsCipherSuitesResult = {
     cipherSuites: [],
     errors: [],

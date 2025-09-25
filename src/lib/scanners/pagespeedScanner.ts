@@ -24,13 +24,13 @@ export async function scanPagespeed(url: string): Promise<PageSpeedResult> {
   const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY;
   if (!apiKey) {
     result.errors.push(
-      "Google PageSpeed Insights API key is not configured. Please set GOOGLE_PAGESPEED_API_KEY in your environment variables."
+      "Google PageSpeed Insights API key is not configured. Please set GOOGLE_PAGESPEED_API_KEY in your environment variables.",
     );
     return result;
   }
 
   const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(
-    url
+    url,
   )}&key=${apiKey}&strategy=mobile`;
 
   try {
@@ -49,14 +49,14 @@ export async function scanPagespeed(url: string): Promise<PageSpeedResult> {
       result.si = audits["speed-index"]?.numericValue || null;
     } else {
       result.errors.push(
-        "No Lighthouse results found in PageSpeed API response."
+        "No Lighthouse results found in PageSpeed API response.",
       );
     }
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         result.errors.push(
-          `PageSpeed API Error: ${error.response.status} - ${error.response.statusText}. Check your API key and URL.`
+          `PageSpeed API Error: ${error.response.status} - ${error.response.statusText}. Check your API key and URL.`,
         );
       } else if (error.request) {
         result.errors.push("No response received from PageSpeed API server.");

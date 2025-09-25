@@ -17,7 +17,6 @@ export async function scanDnssec(url: string): Promise<DnssecResult> {
 
   try {
     const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname;
 
     // In a real-world scenario, this would involve calling a DNSSEC validation service
     // or using a specialized library to perform DNSSEC queries.

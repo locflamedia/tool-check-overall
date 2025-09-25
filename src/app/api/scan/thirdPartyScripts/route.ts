@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     console.error("Error in third-party scripts scan API:", error);
     return NextResponse.json(
       { error: error.message || "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
