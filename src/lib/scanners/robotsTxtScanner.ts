@@ -31,19 +31,20 @@ export async function scanRobotsTxt(url: string): Promise<RobotsTxtResult> {
       const trimmedLine = line.trim();
       if (!trimmedLine || trimmedLine.startsWith("#")) continue;
 
-      const [key, value] = trimmedLine.split(":").map((s: string) => s.trim());
+      const [key, ...valueParts] = trimmedLine.split(":");
+      const keyTrimmed = key.trim().toLowerCase();
+      const value = valueParts.join(":").trim();
 
-      if (key && value) {
-        const lowerKey = key.toLowerCase();
-        if (lowerKey === "user-agent") {
+      if (keyTrimmed && value) {
+        if (keyTrimmed === "user-agent") {
           currentUserAgent = value;
-        } else if (lowerKey === "sitemap") {
+        } else if (keyTrimmed === "sitemap") {
           result.sitemaps.push(value);
-        } else if (lowerKey === "disallow" && currentUserAgent === "*") {
+        } else if (keyTrimmed === "disallow" && currentUserAgent === "*") {
           result.disallows.push(value);
-        } else if (lowerKey === "allow" && currentUserAgent === "*") {
+        } else if (keyTrimmed === "allow" && currentUserAgent === "*") {
           result.allows.push(value);
-        } else if (lowerKey === "host") {
+        } else if (keyTrimmed === "host") {
           result.host = value;
         }
       }

@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress"; // Import Progress component
-import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton component
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -77,13 +77,6 @@ interface SecurityResult {
   errors: string[];
 }
 
-interface MobileFriendlinessResult {
-  hasViewportMeta: boolean;
-  isMobileFriendly: boolean | null;
-  mobileFriendlyTestUrl: string | null;
-  errors: string[];
-}
-
 interface AccessibilityResult {
   imgAltTagsMissing: string[];
   futureEnhancements: string;
@@ -100,27 +93,6 @@ interface SslCertificateResult {
   fingerprint: string;
   extendedKeyUsage: string[] | undefined;
   tlsWebServerAuthentication: boolean;
-  errors: string[];
-}
-
-interface DomainWhoisResult {
-  domainName: string | null;
-  registrar: string | null;
-  whoisServer: string | null;
-  creationDate: string | null;
-  updatedDate: string | null;
-  expirationDate: string | null;
-  nameServers: string[] | null;
-  status: string | null;
-  emails: string[] | null;
-  registrantName: string | null;
-  registrantOrganization: string | null;
-  registrantStreet: string | null;
-  registrantCity: string | null;
-  registrantState: string | null;
-  registrantPostalCode: string | null;
-  registrantCountry: string | null;
-  rawWhois: string | null;
   errors: string[];
 }
 
@@ -258,6 +230,54 @@ interface BlockListsResult {
   errors: string[];
 }
 
+interface UptimeResponseTimeResult {
+  responseTimeMs: number | null;
+  isUp: boolean;
+  errors: string[];
+}
+
+interface ShareSocialResult {
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+  twitterTitle: string | null;
+  twitterDescription: string | null;
+  twitterImage: string | null;
+  errors: string[];
+}
+
+interface FaviconResult {
+  exists: boolean;
+  url: string | null;
+  errors: string[];
+}
+
+interface SSRResult {
+  isSSR: boolean;
+  ssrIndicators: string[];
+  errors: string[];
+}
+
+export interface ThirdPartyScript {
+  url: string | null;
+  domain: string | null;
+  type: "external" | "inline";
+  status: string;
+  contentSnippet?: string;
+  id?: string;
+}
+
+export interface ThirdPartyScriptsResult {
+  totalScripts: number;
+  externalScripts: ThirdPartyScript[];
+  inlineScripts: ThirdPartyScript[];
+  hasGATag: boolean;
+  hasGTMTag: boolean;
+  gtmId: string | null;
+  hasPlausibleTag: boolean;
+  errors: string[];
+}
+
 // Function to calculate score (simple example)
 const calculateScore = (
   errors: string[],
@@ -310,14 +330,6 @@ export default function Home() {
   );
   const [securityError, setSecurityError] = useState<string | null>(null);
 
-  const [mobileFriendlinessLoading, setMobileFriendlinessLoading] =
-    useState<boolean>(false);
-  const [mobileFriendlinessResult, setMobileFriendlinessResult] =
-    useState<MobileFriendlinessResult | null>(null);
-  const [mobileFriendlinessError, setMobileFriendlinessError] = useState<
-    string | null
-  >(null);
-
   const [accessibilityResult, setAccessibilityResult] =
     useState<AccessibilityResult | null>(null);
   const [accessibilityError, setAccessibilityError] = useState<string | null>(
@@ -332,11 +344,6 @@ export default function Home() {
   const [sslCertificateError, setSslCertificateError] = useState<string | null>(
     null
   );
-
-  const [domainWhoisLoading, setDomainWhoisLoading] = useState<boolean>(false);
-  const [domainWhoisResult, setDomainWhoisResult] =
-    useState<DomainWhoisResult | null>(null);
-  const [domainWhoisError, setDomainWhoisError] = useState<string | null>(null);
 
   const [headersLoading, setHeadersLoading] = useState<boolean>(false);
   const [headersResult, setHeadersResult] = useState<HeadersResult | null>(
@@ -436,10 +443,45 @@ export default function Home() {
     useState<BlockListsResult | null>(null);
   const [blockListsError, setBlockListsError] = useState<string | null>(null);
 
+  // New scanner states and results (Share Social)
+  const [shareSocialLoading, setShareSocialLoading] = useState<boolean>(false);
+  const [shareSocialResult, setShareSocialResult] =
+    useState<ShareSocialResult | null>(null);
+  const [shareSocialError, setShareSocialError] = useState<string | null>(null);
+
+  // New scanner states and results (Favicon)
+  const [faviconLoading, setFaviconLoading] = useState<boolean>(false);
+  const [faviconResult, setFaviconResult] = useState<FaviconResult | null>(
+    null
+  );
+  const [faviconError, setFaviconError] = useState<string | null>(null);
+
+  const [ssrLoading, setSsrLoading] = useState<boolean>(false);
+  const [ssrResult, setSsrResult] = useState<SSRResult | null>(null);
+  const [ssrError, setSsrError] = useState<string | null>(null);
+
+  // New scanner states and results (Uptime/Response Time)
+  const [uptimeResponseTimeLoading, setUptimeResponseTimeLoading] =
+    useState<boolean>(false);
+  const [uptimeResponseTimeResult, setUptimeResponseTimeResult] =
+    useState<UptimeResponseTimeResult | null>(null);
+  const [uptimeResponseTimeError, setUptimeResponseTimeError] = useState<
+    string | null
+  >(null);
+
   // State for raw data dialog
   const [showRawDataDialog, setShowRawDataDialog] = useState<boolean>(false);
   const [rawDataTitle, setRawDataTitle] = useState<string>("");
   const [rawDataContent, setRawDataContent] = useState<string>("");
+
+  // New scanner states and results (Third-Party Scripts)
+  const [thirdPartyScriptsLoading, setThirdPartyScriptsLoading] =
+    useState<boolean>(false);
+  const [thirdPartyScriptsResult, setThirdPartyScriptsResult] =
+    useState<ThirdPartyScriptsResult | null>(null);
+  const [thirdPartyScriptsError, setThirdPartyScriptsError] = useState<
+    string | null
+  >(null);
 
   const openRawDataDialog = useCallback((title: string, data: any) => {
     setRawDataTitle(title);
@@ -471,16 +513,12 @@ export default function Home() {
     setPagespeedError(null);
     setSecurityResult(null);
     setSecurityError(null);
-    setMobileFriendlinessResult(null);
-    setMobileFriendlinessError(null);
     setAccessibilityResult(null);
     setAccessibilityError(null);
 
     // Reset new scanner states and results
     setSslCertificateResult(null);
     setSslCertificateError(null);
-    setDomainWhoisResult(null);
-    setDomainWhoisError(null);
     setHeadersResult(null);
     setHeadersError(null);
     setDnsRecordsResult(null);
@@ -514,6 +552,18 @@ export default function Home() {
     setBlockListsResult(null);
     setBlockListsError(null);
 
+    // Reset dynamic domain scanner states and results
+    setUptimeResponseTimeResult(null);
+    setUptimeResponseTimeError(null);
+    setFaviconResult(null);
+    setFaviconError(null);
+    setSsrResult(null);
+    setSsrError(null);
+
+    // Reset third-party scripts scanner states and results
+    setThirdPartyScriptsResult(null);
+    setThirdPartyScriptsError(null);
+
     const baseUrl = url.startsWith("http") ? url : `https://${url}`;
 
     const runScan = async (
@@ -544,10 +594,8 @@ export default function Home() {
       seoPromise,
       pagespeedPromise,
       securityPromise,
-      mobileFriendlinessPromise,
       // New scanners
       sslCertificatePromise,
-      domainWhoisPromise,
       headersPromise,
       dnsRecordsPromise,
       securityTxtPromise,
@@ -564,6 +612,11 @@ export default function Home() {
       // New scanners (Batch 6)
       carbonFootprintPromise,
       blockListsPromise,
+      uptimeResponseTimePromise,
+      shareSocialPromise,
+      faviconPromise,
+      ssrPromise,
+      thirdPartyScriptsPromise, // Thêm dòng này
     ] = await Promise.allSettled([
       runScan(
         "robotsTxt",
@@ -585,22 +638,10 @@ export default function Home() {
         setSecurityResult
       ),
       runScan(
-        "mobileFriendliness",
-        setMobileFriendlinessLoading,
-        setMobileFriendlinessError,
-        setMobileFriendlinessResult
-      ),
-      runScan(
         "sslCertificate",
         setSslCertificateLoading,
         setSslCertificateError,
         setSslCertificateResult
-      ),
-      runScan(
-        "domainWhois",
-        setDomainWhoisLoading,
-        setDomainWhoisError,
-        setDomainWhoisResult
       ),
       runScan("headers", setHeadersLoading, setHeadersError, setHeadersResult),
       runScan(
@@ -678,6 +719,26 @@ export default function Home() {
         setBlockListsError,
         setBlockListsResult
       ),
+      runScan(
+        "uptimeResponseTime",
+        setUptimeResponseTimeLoading,
+        setUptimeResponseTimeError,
+        setUptimeResponseTimeResult
+      ),
+      runScan(
+        "shareSocial",
+        setShareSocialLoading,
+        setShareSocialError,
+        setShareSocialResult
+      ),
+      runScan("favicon", setFaviconLoading, setFaviconError, setFaviconResult),
+      runScan("ssr", setSsrLoading, setSsrError, setSsrResult),
+      runScan(
+        "thirdPartyScripts",
+        setThirdPartyScriptsLoading,
+        setThirdPartyScriptsError,
+        setThirdPartyScriptsResult
+      ),
     ]);
 
     // Handle dependent scans
@@ -732,11 +793,11 @@ export default function Home() {
     value: string | number | null | undefined,
     unit: string = ""
   ) => (
-    <div className="flex justify-between items-center py-1">
-      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className="flex justify-between py-1 gap-4">
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
         {label}:
       </span>
-      <span className="text-sm text-gray-900 dark:text-gray-100">
+      <span className="text-sm text-gray-900 dark:text-gray-100 text-right ">
         {value !== null && value !== undefined ? `${value}${unit}` : "N/A"}
       </span>
     </div>
@@ -769,7 +830,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-900">
-      <Card className="w-full max-w-[1440px] shadow-lg mt-8 mb-8">
+      <div className="w-full max-w-[1440px] shadow-lg mt-8 mb-8">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-bold">
             Website Auditor
@@ -799,7 +860,7 @@ export default function Home() {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <div className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <Input
               type="url"
@@ -832,11 +893,9 @@ export default function Home() {
             seoResult ||
             pagespeedResult ||
             securityResult ||
-            mobileFriendlinessResult ||
             accessibilityResult ||
             // New scanner results
             sslCertificateResult ||
-            domainWhoisResult ||
             headersResult ||
             dnsRecordsResult ||
             securityTxtResult ||
@@ -852,15 +911,17 @@ export default function Home() {
             linkedPagesResult ||
             // New scanner results (Batch 6)
             carbonFootprintResult ||
-            blockListsResult) /* Ensure visibility when there's an error after loading as well. */ && (
+            blockListsResult ||
+            uptimeResponseTimeResult ||
+            shareSocialResult ||
+            faviconResult ||
+            ssrResult ||
+            thirdPartyScriptsResult) /* Ensure visibility when there's an error after loading as well. */ && (
             <div className="space-y-4 mt-6 w-full">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Scan Results for {url}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex gap-4">
                   {/* Robots.txt */}
-                  <Card>
+                  <Card className="w-1/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">Robots.txt</CardTitle>
                       <Button
@@ -930,7 +991,7 @@ export default function Home() {
                   </Card>
 
                   {/* SSL Certificate */}
-                  <Card>
+                  <Card className="flex-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">SSL Certificate</CardTitle>
                       <Button
@@ -1032,101 +1093,89 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
+                </div>
 
-                  {/* Domain Whois */}
-                  <Card>
+                <div className="flex gap-4">
+                  {/* Sitemap */}
+                  <Card className="w-2/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Domain Whois</CardTitle>
+                      <CardTitle className="text-xl">Sitemap</CardTitle>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          openRawDataDialog("Domain Whois", domainWhoisResult)
+                          openRawDataDialog("Sitemap", sitemapResult)
                         }
-                        disabled={!domainWhoisResult}
+                        disabled={!sitemapResult}
                         className="ml-auto"
                       >
                         View Raw Data
                       </Button>
-                      {domainWhoisLoading && <Skeleton className="h-5 w-20" />}
-                      {!domainWhoisLoading &&
-                        domainWhoisResult &&
+                      {sitemapLoading && <Skeleton className="h-5 w-20" />}
+                      {!sitemapLoading &&
+                        sitemapResult &&
                         renderScoreBadge(
-                          calculateScore(domainWhoisResult.errors)
+                          calculateScore(
+                            sitemapResult.errors,
+                            sitemapResult.urls.length,
+                            1
+                          )
                         )}
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
-                      {domainWhoisError ? (
-                        <p className="text-red-500">
-                          Error: {domainWhoisError}
+                      {sitemapError ? (
+                        <p className="text-red-500 text-sm">
+                          Error: {sitemapError}
                         </p>
-                      ) : domainWhoisResult ? (
-                        <>
-                          {renderMetric(
-                            "Domain Name",
-                            domainWhoisResult.domainName
-                          )}
-                          {renderMetric(
-                            "Registrar",
-                            domainWhoisResult.registrar
-                          )}
-                          {renderMetric(
-                            "Whois Server",
-                            domainWhoisResult.whoisServer
-                          )}
-                          {renderMetric(
-                            "Creation Date",
-                            domainWhoisResult.creationDate
-                          )}
-                          {renderMetric(
-                            "Updated Date",
-                            domainWhoisResult.updatedDate
-                          )}
-                          {renderMetric(
-                            "Expiration Date",
-                            domainWhoisResult.expirationDate
-                          )}
-                          {renderMetric(
-                            "Name Servers",
-                            domainWhoisResult.nameServers?.join(", ")
-                          )}
-                          {renderMetric("Status", domainWhoisResult.status)}
-                          {renderMetric(
-                            "Emails",
-                            domainWhoisResult.emails?.join(", ")
-                          )}
-                          {renderMetric(
-                            "Registrant Name",
-                            domainWhoisResult.registrantName
-                          )}
-                          {renderMetric(
-                            "Registrant Organization",
-                            domainWhoisResult.registrantOrganization
-                          )}
-                          {renderMetric(
-                            "Registrant Country",
-                            domainWhoisResult.registrantCountry
-                          )}
-                        </>
-                      ) : domainWhoisLoading ? (
+                      ) : sitemapResult ? (
+                        sitemapResult.urls.length > 0 ? (
+                          <div className="h-fit overflow-y-auto bg-gray-100 dark:bg-gray-800 p-3 rounded-md text-sm">
+                            <p className="font-medium text-sm">
+                              Found {sitemapResult.urls.length} URLs across{" "}
+                              {sitemapResult.sitemapUrls.length} sitemap(s):
+                            </p>
+                            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                              {sitemapResult.urls
+                                .slice(0, 16)
+                                .map((u: string, idx: number) => (
+                                  <li key={idx}>
+                                    <a
+                                      href={u}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-500 hover:underline"
+                                    >
+                                      {u}
+                                    </a>
+                                  </li>
+                                ))}
+                              {sitemapResult.urls.length > 16 && (
+                                <li className="font-medium text-gray-600 dark:text-gray-400 text-sm">
+                                  ...and {sitemapResult.urls.length - 16} more.
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            No sitemap URLs found.
+                          </p>
+                        )
+                      ) : sitemapLoading ? (
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
                           <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-2/3" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-4 w-3/5" />
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-40 w-full" />
                         </div>
                       ) : (
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze domain Whois.
+                          Click 'Scan Website' to analyze sitemap.
                         </p>
                       )}
                     </CardContent>
                   </Card>
-
                   {/* Headers */}
-                  <Card>
+                  <Card className="w-1/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">Headers</CardTitle>
                       <Button
@@ -1214,88 +1263,94 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
+                </div>
 
-                  {/* Sitemap */}
-                  <Card>
+                <div className="flex gap-4">
+                  {/* Performance */}
+                  <Card className="w-1/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Sitemap</CardTitle>
+                      <CardTitle className="text-xl">Performance</CardTitle>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          openRawDataDialog("Sitemap", sitemapResult)
+                          openRawDataDialog("Performance", pagespeedResult)
                         }
-                        disabled={!sitemapResult}
+                        disabled={!pagespeedResult}
                         className="ml-auto"
                       >
                         View Raw Data
                       </Button>
-                      {sitemapLoading && <Skeleton className="h-5 w-20" />}
-                      {!sitemapLoading &&
-                        sitemapResult &&
-                        renderScoreBadge(
-                          calculateScore(
-                            sitemapResult.errors,
-                            sitemapResult.urls.length,
-                            1
-                          )
-                        )}
+                      {pagespeedLoading && <Skeleton className="h-5 w-20" />}
+                      {!pagespeedLoading &&
+                        pagespeedResult &&
+                        renderScoreBadge(pagespeedResult.overallScore || 0)}
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
-                      {sitemapError ? (
+                      {pagespeedError ? (
                         <p className="text-red-500 text-sm">
-                          Error: {sitemapError}
+                          Error: {pagespeedError}
                         </p>
-                      ) : sitemapResult ? (
-                        sitemapResult.urls.length > 0 ? (
-                          <div className="max-h-60 overflow-y-auto bg-gray-100 dark:bg-gray-800 p-3 rounded-md text-sm">
-                            <p className="font-medium text-sm">
-                              Found {sitemapResult.urls.length} URLs across{" "}
-                              {sitemapResult.sitemapUrls.length} sitemap(s):
-                            </p>
-                            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                              {sitemapResult.urls
-                                .slice(0, 10)
-                                .map((u: string, idx: number) => (
-                                  <li key={idx}>
-                                    <a
-                                      href={u}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-500 hover:underline"
-                                    >
-                                      {u}
-                                    </a>
-                                  </li>
-                                ))}
-                              {sitemapResult.urls.length > 10 && (
-                                <li className="font-medium text-gray-600 dark:text-gray-400 text-sm">
-                                  ...and {sitemapResult.urls.length - 10} more.
-                                </li>
-                              )}
-                            </ul>
+                      ) : pagespeedResult ? (
+                        pagespeedResult.overallScore !== null ? (
+                          <div className="space-y-2">
+                            {renderMetric(
+                              "Overall Score",
+                              pagespeedResult.overallScore
+                            )}
+                            <Progress
+                              value={pagespeedResult.overallScore || 0}
+                              className="w-full"
+                            />
+                            {renderMetric(
+                              "FCP",
+                              pagespeedResult.fcp?.toFixed(2),
+                              "s"
+                            )}
+                            {renderMetric(
+                              "LCP",
+                              pagespeedResult.lcp?.toFixed(2),
+                              "s"
+                            )}
+                            {renderMetric(
+                              "CLS",
+                              pagespeedResult.cls?.toFixed(3)
+                            )}
+                            {renderMetric(
+                              "TBT",
+                              pagespeedResult.tbt?.toFixed(2),
+                              "ms"
+                            )}
+                            {renderMetric(
+                              "Speed Index",
+                              pagespeedResult.si?.toFixed(2),
+                              "s"
+                            )}
                           </div>
                         ) : (
                           <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            No sitemap URLs found.
+                            No performance data available.
                           </p>
                         )
-                      ) : sitemapLoading ? (
+                      ) : pagespeedLoading ? (
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-full" />
                           <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-40 w-full" />
+                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-4 w-1/4" />
+                          <Skeleton className="h-4 w-3/5" />
                         </div>
                       ) : (
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze sitemap.
+                          Click 'Scan Website' to analyze performance.
                         </p>
                       )}
                     </CardContent>
                   </Card>
 
                   {/* SEO Details */}
-                  <Card>
+                  <Card className="w-2/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">SEO Details</CardTitle>
                       <Button
@@ -1422,93 +1477,11 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
+                </div>
 
-                  {/* Performance (PageSpeed) */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">
-                        Performance (PageSpeed)
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "Performance (PageSpeed)",
-                            pagespeedResult
-                          )
-                        }
-                        disabled={!pagespeedResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {pagespeedLoading && <Skeleton className="h-5 w-20" />}
-                      {!pagespeedLoading &&
-                        pagespeedResult &&
-                        renderScoreBadge(pagespeedResult.overallScore || 0)}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {pagespeedError ? (
-                        <p className="text-red-500 text-sm">
-                          Error: {pagespeedError}
-                        </p>
-                      ) : pagespeedResult ? (
-                        pagespeedResult.overallScore !== null ? (
-                          <div className="space-y-2">
-                            {renderMetric(
-                              "Overall Score",
-                              pagespeedResult.overallScore
-                            )}
-                            {renderMetric(
-                              "FCP",
-                              pagespeedResult.fcp?.toFixed(2),
-                              "s"
-                            )}
-                            {renderMetric(
-                              "LCP",
-                              pagespeedResult.lcp?.toFixed(2),
-                              "s"
-                            )}
-                            {renderMetric(
-                              "CLS",
-                              pagespeedResult.cls?.toFixed(3)
-                            )}
-                            {renderMetric(
-                              "TBT",
-                              pagespeedResult.tbt?.toFixed(2),
-                              "ms"
-                            )}
-                            {renderMetric(
-                              "Speed Index",
-                              pagespeedResult.si?.toFixed(2),
-                              "s"
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            No performance data available.
-                          </p>
-                        )
-                      ) : pagespeedLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-2/3" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-4 w-3/5" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze performance.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
+                <div className="flex gap-4">
                   {/* Security Headers */}
-                  <Card>
+                  <Card className="w-1/2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">
                         Security Headers
@@ -1585,98 +1558,8 @@ export default function Home() {
                     </CardContent>
                   </Card>
 
-                  {/* Mobile Friendliness */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">
-                        Mobile Friendliness
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "Mobile Friendliness",
-                            mobileFriendlinessResult
-                          )
-                        }
-                        disabled={!mobileFriendlinessResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {mobileFriendlinessLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!mobileFriendlinessLoading &&
-                        mobileFriendlinessResult &&
-                        renderScoreBadge(
-                          calculateScore(
-                            mobileFriendlinessResult.errors,
-                            mobileFriendlinessResult.isMobileFriendly
-                          )
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {mobileFriendlinessError ? (
-                        <p className="text-red-500 text-sm">
-                          Error: {mobileFriendlinessError}
-                        </p>
-                      ) : mobileFriendlinessResult ? (
-                        <>
-                          {renderMetric(
-                            "Has Viewport Meta Tag",
-                            mobileFriendlinessResult.hasViewportMeta
-                              ? "Yes"
-                              : "No"
-                          )}
-                          {mobileFriendlinessResult.isMobileFriendly !==
-                          null ? (
-                            renderMetric(
-                              "Is Mobile Friendly (Google Test)",
-                              mobileFriendlinessResult.isMobileFriendly
-                                ? "Yes"
-                                : "No"
-                            )
-                          ) : (
-                            <p className="text-gray-600 dark:text-gray-400 text-sm">
-                              Mobile friendly test data not available.
-                            </p>
-                          )}
-                          {mobileFriendlinessResult.mobileFriendlyTestUrl && (
-                            <div className="flex justify-between items-center py-1">
-                              <span className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-                                Mobile-Friendly Test URL:
-                              </span>
-                              <a
-                                href={
-                                  mobileFriendlinessResult.mobileFriendlyTestUrl
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 hover:underline text-sm"
-                              >
-                                Link
-                              </a>
-                            </div>
-                          )}
-                        </>
-                      ) : mobileFriendlinessLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze mobile friendliness.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
                   {/* Accessibility Placeholder */}
-                  <Card>
+                  <Card className="w-1/2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">Accessibility</CardTitle>
                       <Button
@@ -1745,9 +1628,10 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
-
+                </div>
+                <div className="flex gap-4">
                   {/* DNS Records */}
-                  <Card>
+                  <Card className="w-1/2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">DNS Records</CardTitle>
                       <Button
@@ -1814,592 +1698,616 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
-
-                  {/* Security.txt */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Security.txt</CardTitle>
-                      {securityTxtLoading && <Skeleton className="h-5 w-20" />}
-                      {!securityTxtLoading &&
-                        securityTxtResult &&
-                        renderScoreBadge(
-                          calculateScore(securityTxtResult.errors)
+                  <div className="flex flex-col gap-4 w-1/2">
+                    {/* Security.txt */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">Security.txt</CardTitle>
+                        {securityTxtLoading && (
+                          <Skeleton className="h-5 w-20" />
                         )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {securityTxtError ? (
-                        <p className="text-red-500">
-                          Error: {securityTxtError}
-                        </p>
-                      ) : securityTxtResult ? (
-                        <>
-                          {renderMetric(
-                            "Security.txt Exists",
-                            securityTxtResult.exists ? "Yes" : "No"
+                        {!securityTxtLoading &&
+                          securityTxtResult &&
+                          renderScoreBadge(
+                            calculateScore(securityTxtResult.errors)
                           )}
-                          {securityTxtResult.content && (
-                            <div>
-                              <p className="font-medium text-sm">Content:</p>
-                              <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-x-auto whitespace-pre-wrap text-sm">
-                                {securityTxtResult.content}
-                              </pre>
-                            </div>
-                          )}
-                        </>
-                      ) : securityTxtLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-2/3" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-4 w-3/5" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze Security.txt.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Threats */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Threats</CardTitle>
-                      {threatsLoading && <Skeleton className="h-5 w-20" />}
-                      {!threatsLoading &&
-                        threatsResult &&
-                        renderScoreBadge(calculateScore(threatsResult.errors))}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {threatsError ? (
-                        <p className="text-red-500">Error: {threatsError}</p>
-                      ) : threatsResult ? (
-                        <>
-                          {renderMetric(
-                            "Phishing Status",
-                            threatsResult.phishingStatus
-                          )}
-                        </>
-                      ) : threatsLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze threats.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* DNSSEC */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">DNSSEC</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog("DNSSEC", dnssecResult)
-                        }
-                        disabled={!dnssecResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {dnssecLoading && <Skeleton className="h-5 w-20" />}
-                      {!dnssecLoading &&
-                        dnssecResult &&
-                        renderScoreBadge(calculateScore(dnssecResult.errors))}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {dnssecError ? (
-                        <p className="text-red-500">Error: {dnssecError}</p>
-                      ) : dnssecResult ? (
-                        <>
-                          {renderMetric(
-                            "DNSKEY Present",
-                            dnssecResult.dnskeyPresent ? "Yes" : "No"
-                          )}
-                          {renderMetric(
-                            "DS Present",
-                            dnssecResult.dsPresent ? "Yes" : "No"
-                          )}
-                          {renderMetric(
-                            "RRSIG Present",
-                            dnssecResult.rrsigPresent ? "Yes" : "No"
-                          )}
-                        </>
-                      ) : dnssecLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze DNSSEC.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* HSTS Check */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">HSTS Check</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog("HSTS Check", hstsCheckResult)
-                        }
-                        disabled={!hstsCheckResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {hstsCheckLoading && <Skeleton className="h-5 w-20" />}
-                      {!hstsCheckLoading &&
-                        hstsCheckResult &&
-                        renderScoreBadge(
-                          calculateScore(hstsCheckResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {hstsCheckError ? (
-                        <p className="text-red-500">Error: {hstsCheckError}</p>
-                      ) : hstsCheckResult ? (
-                        <>
-                          {renderMetric(
-                            "HSTS Enabled",
-                            hstsCheckResult.hstsEnabled ? "Yes" : "No"
-                          )}
-                        </>
-                      ) : hstsCheckLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze HSTS.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* TLS Security Issues */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">
-                        TLS Security Issues
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "TLS Security Issues",
-                            tlsSecurityIssuesResult
-                          )
-                        }
-                        disabled={!tlsSecurityIssuesResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {tlsSecurityIssuesLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!tlsSecurityIssuesLoading &&
-                        tlsSecurityIssuesResult &&
-                        renderScoreBadge(
-                          calculateScore(tlsSecurityIssuesResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {tlsSecurityIssuesError ? (
-                        <p className="text-red-500">
-                          Error: {tlsSecurityIssuesError}
-                        </p>
-                      ) : tlsSecurityIssuesResult ? (
-                        <>
-                          {renderMetric(
-                            "Issues Found",
-                            tlsSecurityIssuesResult.issuesFound ? "Yes" : "No"
-                          )}
-                          {tlsSecurityIssuesResult.details &&
-                            tlsSecurityIssuesResult.details.length > 0 && (
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {securityTxtError ? (
+                          <p className="text-red-500">
+                            Error: {securityTxtError}
+                          </p>
+                        ) : securityTxtResult ? (
+                          <>
+                            {renderMetric(
+                              "Security.txt Exists",
+                              securityTxtResult.exists ? "Yes" : "No"
+                            )}
+                            {securityTxtResult.content && (
                               <div>
-                                <p className="font-medium text-sm">Details:</p>
+                                <p className="font-medium text-sm">Content:</p>
+                                <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-x-auto whitespace-pre-wrap text-sm">
+                                  {securityTxtResult.content}
+                                </pre>
+                              </div>
+                            )}
+                          </>
+                        ) : securityTxtLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-2/3" />
+                            <Skeleton className="h-4 w-1/4" />
+                            <Skeleton className="h-4 w-3/5" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze Security.txt.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* DNSSEC */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">DNSSEC</CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog("DNSSEC", dnssecResult)
+                          }
+                          disabled={!dnssecResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {dnssecLoading && <Skeleton className="h-5 w-20" />}
+                        {!dnssecLoading &&
+                          dnssecResult &&
+                          renderScoreBadge(calculateScore(dnssecResult.errors))}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {dnssecError ? (
+                          <p className="text-red-500">Error: {dnssecError}</p>
+                        ) : dnssecResult ? (
+                          <>
+                            {renderMetric(
+                              "DNSKEY Present",
+                              dnssecResult.dnskeyPresent ? "Yes" : "No"
+                            )}
+                            {renderMetric(
+                              "DS Present",
+                              dnssecResult.dsPresent ? "Yes" : "No"
+                            )}
+                            {renderMetric(
+                              "RRSIG Present",
+                              dnssecResult.rrsigPresent ? "Yes" : "No"
+                            )}
+                          </>
+                        ) : dnssecLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze DNSSEC.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex flex-col gap-4 w-1/3">
+                    {/* Global Ranking */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          Global Ranking
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "Global Ranking",
+                              globalRankingResult
+                            )
+                          }
+                          disabled={!globalRankingResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {globalRankingLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!globalRankingLoading &&
+                          globalRankingResult &&
+                          renderScoreBadge(
+                            calculateScore(globalRankingResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {globalRankingError ? (
+                          <p className="text-red-500">
+                            Error: {globalRankingError}
+                          </p>
+                        ) : globalRankingResult ? (
+                          <>
+                            {renderMetric(
+                              "Global Rank",
+                              globalRankingResult.globalRank
+                            )}
+                            {renderMetric(
+                              "Change Since Yesterday",
+                              globalRankingResult.changeSinceYesterday
+                            )}
+                            {renderMetric(
+                              "Historical Average Rank",
+                              globalRankingResult.historicalAverageRank
+                            )}
+                          </>
+                        ) : globalRankingLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze global ranking.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* HSTS Check */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">HSTS Check</CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog("HSTS Check", hstsCheckResult)
+                          }
+                          disabled={!hstsCheckResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {hstsCheckLoading && <Skeleton className="h-5 w-20" />}
+                        {!hstsCheckLoading &&
+                          hstsCheckResult &&
+                          renderScoreBadge(
+                            calculateScore(hstsCheckResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {hstsCheckError ? (
+                          <p className="text-red-500">
+                            Error: {hstsCheckError}
+                          </p>
+                        ) : hstsCheckResult ? (
+                          <>
+                            {renderMetric(
+                              "HSTS Enabled",
+                              hstsCheckResult.hstsEnabled ? "Yes" : "No"
+                            )}
+                          </>
+                        ) : hstsCheckLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze HSTS.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* TLS Security Issues */}
+                    <Card className="h-full">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          TLS Security Issues
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "TLS Security Issues",
+                              tlsSecurityIssuesResult
+                            )
+                          }
+                          disabled={!tlsSecurityIssuesResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {tlsSecurityIssuesLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!tlsSecurityIssuesLoading &&
+                          tlsSecurityIssuesResult &&
+                          renderScoreBadge(
+                            calculateScore(tlsSecurityIssuesResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {tlsSecurityIssuesError ? (
+                          <p className="text-red-500">
+                            Error: {tlsSecurityIssuesError}
+                          </p>
+                        ) : tlsSecurityIssuesResult ? (
+                          <>
+                            {renderMetric(
+                              "Issues Found",
+                              tlsSecurityIssuesResult.issuesFound ? "Yes" : "No"
+                            )}
+                            {tlsSecurityIssuesResult.details &&
+                              tlsSecurityIssuesResult.details.length > 0 && (
+                                <div>
+                                  <p className="font-medium text-sm">
+                                    Details:
+                                  </p>
+                                  <ul className="list-disc list-inside ml-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                                    {tlsSecurityIssuesResult.details.map(
+                                      (detail, idx) => (
+                                        <li key={idx}>{detail}</li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+                          </>
+                        ) : tlsSecurityIssuesLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze TLS security issues.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="flex gap-4 flex-col w-2/3">
+                    {/* Archive History */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          Archive History
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "Archive History",
+                              archiveHistoryResult
+                            )
+                          }
+                          disabled={!archiveHistoryResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {archiveHistoryLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!archiveHistoryLoading &&
+                          archiveHistoryResult &&
+                          renderScoreBadge(
+                            calculateScore(archiveHistoryResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {archiveHistoryError ? (
+                          <p className="text-red-500">
+                            Error: {archiveHistoryError}
+                          </p>
+                        ) : archiveHistoryResult ? (
+                          <>
+                            {renderMetric(
+                              "First Scan",
+                              archiveHistoryResult.firstScan
+                            )}
+                            {renderMetric(
+                              "Last Scan",
+                              archiveHistoryResult.lastScan
+                            )}
+                            {renderMetric(
+                              "Total Scans",
+                              archiveHistoryResult.totalScans
+                            )}
+                            {renderMetric(
+                              "Change Count",
+                              archiveHistoryResult.changeCount
+                            )}
+                            {renderMetric(
+                              "Average Size",
+                              archiveHistoryResult.avgSize
+                            )}
+                            {renderMetric(
+                              "Average Days Between Scans",
+                              archiveHistoryResult.avgDaysBetweenScans
+                            )}
+                            {renderMetric(
+                              "Internet Archive URL",
+                              archiveHistoryResult.internetArchiveUrl
+                            )}
+                          </>
+                        ) : archiveHistoryLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze archive history.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Threats */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">Threats</CardTitle>
+                        {threatsLoading && <Skeleton className="h-5 w-20" />}
+                        {!threatsLoading &&
+                          threatsResult &&
+                          renderScoreBadge(
+                            calculateScore(threatsResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {threatsError ? (
+                          <p className="text-red-500">Error: {threatsError}</p>
+                        ) : threatsResult ? (
+                          <>
+                            {renderMetric(
+                              "Phishing Status",
+                              threatsResult.phishingStatus
+                            )}
+                          </>
+                        ) : threatsLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze threats.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                    {/* TLS Cipher Suites */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          TLS Cipher Suites
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "TLS Cipher Suites",
+                              tlsCipherSuitesResult
+                            )
+                          }
+                          disabled={!tlsCipherSuitesResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {tlsCipherSuitesLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!tlsCipherSuitesLoading &&
+                          tlsCipherSuitesResult &&
+                          renderScoreBadge(
+                            calculateScore(tlsCipherSuitesResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {tlsCipherSuitesError ? (
+                          <p className="text-red-500">
+                            Error: {tlsCipherSuitesError}
+                          </p>
+                        ) : tlsCipherSuitesResult ? (
+                          <>
+                            {renderMetric(
+                              "Cipher Suites",
+                              tlsCipherSuitesResult.cipherSuites.join(", ")
+                            )}
+                          </>
+                        ) : tlsCipherSuitesLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze TLS cipher suites.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex flex-col gap-4 w-1/2">
+                    {/* TLS Handshake Simulation */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          TLS Handshake Simulation
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "TLS Handshake Simulation",
+                              tlsHandshakeSimulationResult
+                            )
+                          }
+                          disabled={!tlsHandshakeSimulationResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {tlsHandshakeSimulationLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!tlsHandshakeSimulationLoading &&
+                          tlsHandshakeSimulationResult &&
+                          renderScoreBadge(
+                            calculateScore(tlsHandshakeSimulationResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {tlsHandshakeSimulationError ? (
+                          <p className="text-red-500">
+                            Error: {tlsHandshakeSimulationError}
+                          </p>
+                        ) : tlsHandshakeSimulationResult ? (
+                          <>
+                            {renderMetric(
+                              "TLS Version",
+                              tlsHandshakeSimulationResult.tlsVersion
+                            )}
+                            {renderMetric(
+                              "Cipher Suite",
+                              tlsHandshakeSimulationResult.cipherSuite
+                            )}
+                            {renderMetric(
+                              "Key Exchange Strength",
+                              tlsHandshakeSimulationResult.kexStrength
+                            )}
+                          </>
+                        ) : tlsHandshakeSimulationLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze TLS handshake
+                            simulation.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Redirects */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">Redirects</CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog("Redirects", redirectsResult)
+                          }
+                          disabled={!redirectsResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {redirectsLoading && <Skeleton className="h-5 w-20" />}
+                        {!redirectsLoading &&
+                          redirectsResult &&
+                          renderScoreBadge(
+                            calculateScore(redirectsResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {redirectsError ? (
+                          <p className="text-red-500">
+                            Error: {redirectsError}
+                          </p>
+                        ) : redirectsResult ? (
+                          <>
+                            {renderMetric(
+                              "Has Redirects",
+                              redirectsResult.hasRedirects ? "Yes" : "No"
+                            )}
+                            {renderMetric(
+                              "Redirect Count",
+                              redirectsResult.redirectCount
+                            )}
+                            {redirectsResult.redirectChain.length > 0 && (
+                              <div>
+                                <p className="font-medium text-sm">
+                                  Redirect Chain:
+                                </p>
                                 <ul className="list-disc list-inside ml-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                                  {tlsSecurityIssuesResult.details.map(
-                                    (detail, idx) => (
-                                      <li key={idx}>{detail}</li>
+                                  {redirectsResult.redirectChain.map(
+                                    (r, idx) => (
+                                      <li key={idx}>
+                                        {r.from} ({r.status})
+                                      </li>
                                     )
                                   )}
                                 </ul>
                               </div>
                             )}
-                        </>
-                      ) : tlsSecurityIssuesLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze TLS security issues.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Archive History */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Archive History</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "Archive History",
-                            archiveHistoryResult
-                          )
-                        }
-                        disabled={!archiveHistoryResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {archiveHistoryLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!archiveHistoryLoading &&
-                        archiveHistoryResult &&
-                        renderScoreBadge(
-                          calculateScore(archiveHistoryResult.errors)
+                            {redirectsResult.finalUrl && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="font-medium text-gray-700 dark:text-gray-300 text-sm">
+                                  Final URL:
+                                </span>
+                                <a
+                                  href={redirectsResult.finalUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline text-sm"
+                                >
+                                  {redirectsResult.finalUrl}
+                                </a>
+                              </div>
+                            )}
+                          </>
+                        ) : redirectsLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze redirects.
+                          </p>
                         )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {archiveHistoryError ? (
-                        <p className="text-red-500">
-                          Error: {archiveHistoryError}
-                        </p>
-                      ) : archiveHistoryResult ? (
-                        <>
-                          {renderMetric(
-                            "First Scan",
-                            archiveHistoryResult.firstScan
-                          )}
-                          {renderMetric(
-                            "Last Scan",
-                            archiveHistoryResult.lastScan
-                          )}
-                          {renderMetric(
-                            "Total Scans",
-                            archiveHistoryResult.totalScans
-                          )}
-                          {renderMetric(
-                            "Change Count",
-                            archiveHistoryResult.changeCount
-                          )}
-                          {renderMetric(
-                            "Average Size",
-                            archiveHistoryResult.avgSize
-                          )}
-                          {renderMetric(
-                            "Average Days Between Scans",
-                            archiveHistoryResult.avgDaysBetweenScans
-                          )}
-                          {renderMetric(
-                            "Internet Archive URL",
-                            archiveHistoryResult.internetArchiveUrl
-                          )}
-                        </>
-                      ) : archiveHistoryLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze archive history.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Global Ranking */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Global Ranking</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "Global Ranking",
-                            globalRankingResult
-                          )
-                        }
-                        disabled={!globalRankingResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {globalRankingLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!globalRankingLoading &&
-                        globalRankingResult &&
-                        renderScoreBadge(
-                          calculateScore(globalRankingResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {globalRankingError ? (
-                        <p className="text-red-500">
-                          Error: {globalRankingError}
-                        </p>
-                      ) : globalRankingResult ? (
-                        <>
-                          {renderMetric(
-                            "Global Rank",
-                            globalRankingResult.globalRank
-                          )}
-                          {renderMetric(
-                            "Change Since Yesterday",
-                            globalRankingResult.changeSinceYesterday
-                          )}
-                          {renderMetric(
-                            "Historical Average Rank",
-                            globalRankingResult.historicalAverageRank
-                          )}
-                        </>
-                      ) : globalRankingLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze global ranking.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* TLS Cipher Suites */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">
-                        TLS Cipher Suites
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "TLS Cipher Suites",
-                            tlsCipherSuitesResult
-                          )
-                        }
-                        disabled={!tlsCipherSuitesResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {tlsCipherSuitesLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!tlsCipherSuitesLoading &&
-                        tlsCipherSuitesResult &&
-                        renderScoreBadge(
-                          calculateScore(tlsCipherSuitesResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {tlsCipherSuitesError ? (
-                        <p className="text-red-500">
-                          Error: {tlsCipherSuitesError}
-                        </p>
-                      ) : tlsCipherSuitesResult ? (
-                        <>
-                          {renderMetric(
-                            "Cipher Suites",
-                            tlsCipherSuitesResult.cipherSuites.join(", ")
-                          )}
-                        </>
-                      ) : tlsCipherSuitesLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze TLS cipher suites.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* TLS Handshake Simulation */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">
-                        TLS Handshake Simulation
-                      </CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog(
-                            "TLS Handshake Simulation",
-                            tlsHandshakeSimulationResult
-                          )
-                        }
-                        disabled={!tlsHandshakeSimulationResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {tlsHandshakeSimulationLoading && (
-                        <Skeleton className="h-5 w-20" />
-                      )}
-                      {!tlsHandshakeSimulationLoading &&
-                        tlsHandshakeSimulationResult &&
-                        renderScoreBadge(
-                          calculateScore(tlsHandshakeSimulationResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {tlsHandshakeSimulationError ? (
-                        <p className="text-red-500">
-                          Error: {tlsHandshakeSimulationError}
-                        </p>
-                      ) : tlsHandshakeSimulationResult ? (
-                        <>
-                          {renderMetric(
-                            "TLS Version",
-                            tlsHandshakeSimulationResult.tlsVersion
-                          )}
-                          {renderMetric(
-                            "Cipher Suite",
-                            tlsHandshakeSimulationResult.cipherSuite
-                          )}
-                          {renderMetric(
-                            "Key Exchange Strength",
-                            tlsHandshakeSimulationResult.kexStrength
-                          )}
-                        </>
-                      ) : tlsHandshakeSimulationLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze TLS handshake
-                          simulation.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Redirects */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xl">Redirects</CardTitle>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          openRawDataDialog("Redirects", redirectsResult)
-                        }
-                        disabled={!redirectsResult}
-                        className="ml-auto"
-                      >
-                        View Raw Data
-                      </Button>
-                      {redirectsLoading && <Skeleton className="h-5 w-20" />}
-                      {!redirectsLoading &&
-                        redirectsResult &&
-                        renderScoreBadge(
-                          calculateScore(redirectsResult.errors)
-                        )}
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      {redirectsError ? (
-                        <p className="text-red-500">Error: {redirectsError}</p>
-                      ) : redirectsResult ? (
-                        <>
-                          {renderMetric(
-                            "Has Redirects",
-                            redirectsResult.hasRedirects ? "Yes" : "No"
-                          )}
-                          {renderMetric(
-                            "Redirect Count",
-                            redirectsResult.redirectCount
-                          )}
-                          {redirectsResult.redirectChain.length > 0 && (
-                            <div>
-                              <p className="font-medium text-sm">
-                                Redirect Chain:
-                              </p>
-                              <ul className="list-disc list-inside ml-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                                {redirectsResult.redirectChain.map((r, idx) => (
-                                  <li key={idx}>
-                                    {r.from} ({r.status})
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          {redirectsResult.finalUrl && (
-                            <div className="flex justify-between items-center py-1">
-                              <span className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-                                Final URL:
-                              </span>
-                              <a
-                                href={redirectsResult.finalUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 hover:underline text-sm"
-                              >
-                                {redirectsResult.finalUrl}
-                              </a>
-                            </div>
-                          )}
-                        </>
-                      ) : redirectsLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <Skeleton className="h-4 w-full" />
-                        </div>
-                      ) : (
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Click 'Scan Website' to analyze redirects.
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-
+                      </CardContent>
+                    </Card>
+                  </div>
                   {/* Linked Pages */}
-                  <Card>
+                  <Card className="w-1/2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">Linked Pages</CardTitle>
                       <Button
@@ -2467,9 +2375,10 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
-
+                </div>
+                <div className="flex gap-4">
                   {/* Carbon Footprint */}
-                  <Card>
+                  <Card className="w-1/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">
                         Carbon Footprint
@@ -2534,7 +2443,7 @@ export default function Home() {
                   </Card>
 
                   {/* Block Lists */}
-                  <Card>
+                  <Card className="w-1/3">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl">Block Lists</CardTitle>
                       <Button
@@ -2599,17 +2508,488 @@ export default function Home() {
                       )}
                     </CardContent>
                   </Card>
-                </CardContent>
-              </Card>
+                  {/* Uptime/Response Time */}
+                  <Card className="w-1/3">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xl">
+                        Uptime/Response Time
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          openRawDataDialog(
+                            "Uptime/Response Time",
+                            uptimeResponseTimeResult
+                          )
+                        }
+                        disabled={!uptimeResponseTimeResult}
+                        className="ml-auto"
+                      >
+                        View Raw Data
+                      </Button>
+                      {uptimeResponseTimeLoading && (
+                        <Skeleton className="h-5 w-20" />
+                      )}
+                      {!uptimeResponseTimeLoading &&
+                        uptimeResponseTimeResult &&
+                        renderScoreBadge(
+                          calculateScore(uptimeResponseTimeResult.errors)
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      {uptimeResponseTimeError ? (
+                        <p className="text-red-500">
+                          Error: {uptimeResponseTimeError}
+                        </p>
+                      ) : uptimeResponseTimeResult ? (
+                        <>
+                          {renderMetric(
+                            "Is Up",
+                            uptimeResponseTimeResult.isUp ? "Yes" : "No"
+                          )}
+                          {renderMetric(
+                            "Response Time",
+                            uptimeResponseTimeResult.responseTimeMs,
+                            "ms"
+                          )}
+                        </>
+                      ) : uptimeResponseTimeLoading ? (
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-4 w-full" />
+                        </div>
+                      ) : (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                          Click 'Scan Website' to analyze uptime/response time.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-1/2 flex gap-4 flex-col">
+                    {/* Favicon */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">Favicon</CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog("Favicon", faviconResult)
+                          }
+                          disabled={!faviconResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {faviconLoading && <Skeleton className="h-5 w-20" />}
+                        {!faviconLoading &&
+                          faviconResult &&
+                          renderScoreBadge(
+                            calculateScore(
+                              faviconResult.errors,
+                              faviconResult.exists
+                            )
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {faviconError ? (
+                          <p className="text-red-500">Error: {faviconError}</p>
+                        ) : faviconResult ? (
+                          <>
+                            {renderMetric(
+                              "Exists",
+                              faviconResult.exists ? "Yes" : "No"
+                            )}
+                            {faviconResult.url && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  URL:
+                                </span>
+                                <a
+                                  href={faviconResult.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline text-sm"
+                                >
+                                  {faviconResult.url}
+                                </a>
+                              </div>
+                            )}
+                            {faviconResult.url && faviconResult.exists && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  Preview:
+                                </span>
+                                <img
+                                  src={faviconResult.url}
+                                  alt="Favicon Preview"
+                                  className="max-h-10 max-w-[100px] object-contain rounded-md"
+                                />
+                              </div>
+                            )}
+                            {!faviconResult.url && !faviconResult.exists && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  URL:
+                                </span>
+                                <span className="text-sm text-gray-900 dark:text-gray-100">
+                                  N/A
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        ) : faviconLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze favicon.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                    {/* SSR */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          SSR (Server-Side Rendering)
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "SSR (Server-Side Rendering)",
+                              ssrResult
+                            )
+                          }
+                          disabled={!ssrResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {ssrLoading && <Skeleton className="h-5 w-20" />}
+                        {!ssrLoading &&
+                          ssrResult &&
+                          renderScoreBadge(
+                            calculateScore(ssrResult.errors, ssrResult.isSSR)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {ssrError ? (
+                          <p className="text-red-500">Error: {ssrError}</p>
+                        ) : ssrResult ? (
+                          <>
+                            {renderMetric(
+                              "Is SSR",
+                              ssrResult.isSSR ? "Yes" : "No"
+                            )}
+                            {ssrResult.ssrIndicators.length > 0 && (
+                              <div>
+                                <p className="font-medium text-gray-700 dark:text-gray-300 text-sm mb-1">
+                                  Indicators found:
+                                </p>
+                                <ul className="list-disc list-inside ml-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                                  {ssrResult.ssrIndicators.map(
+                                    (indicator, idx) => (
+                                      <li key={idx}>{indicator}</li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+                          </>
+                        ) : ssrLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze SSR.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                    {/* Third-Party Scripts */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-xl">
+                          Third-Party Scripts
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openRawDataDialog(
+                              "Third-Party Scripts",
+                              thirdPartyScriptsResult
+                            )
+                          }
+                          disabled={!thirdPartyScriptsResult}
+                          className="ml-auto"
+                        >
+                          View Raw Data
+                        </Button>
+                        {thirdPartyScriptsLoading && (
+                          <Skeleton className="h-5 w-20" />
+                        )}
+                        {!thirdPartyScriptsLoading &&
+                          thirdPartyScriptsResult &&
+                          renderScoreBadge(
+                            calculateScore(thirdPartyScriptsResult.errors)
+                          )}
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {thirdPartyScriptsError ? (
+                          <p className="text-red-500">
+                            Error: {thirdPartyScriptsError}
+                          </p>
+                        ) : thirdPartyScriptsResult ? (
+                          <>
+                            {renderMetric(
+                              "Total Scripts",
+                              thirdPartyScriptsResult.totalScripts
+                            )}
+
+                            {thirdPartyScriptsResult.externalScripts.length >
+                              0 && (
+                              <div>
+                                <Collapsible className="w-full space-y-2">
+                                  <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 text-lg font-medium text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                    <span>External Scripts</span>
+                                    <ChevronDown className="h-5 w-5" />
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent className="space-y-2 pl-4 text-sm">
+                                    {thirdPartyScriptsResult.externalScripts.map(
+                                      (script, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="bg-gray-50 dark:bg-gray-700 p-2 rounded-md"
+                                        >
+                                          <p className="font-medium">
+                                            URL: {script.url}
+                                          </p>
+                                          <p>Domain: {script.domain}</p>
+                                          <p>Status: {script.status}</p>
+                                        </div>
+                                      )
+                                    )}
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              </div>
+                            )}
+
+                            {thirdPartyScriptsResult.inlineScripts.length >
+                              0 && (
+                              <div>
+                                <Collapsible className="w-full space-y-2">
+                                  <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 text-lg font-medium text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mt-2">
+                                    <span>Inline Scripts</span>
+                                    <ChevronDown className="h-5 w-5" />
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent className="space-y-2 pl-4 text-sm">
+                                    {thirdPartyScriptsResult.inlineScripts.map(
+                                      (script, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="bg-gray-50 dark:bg-gray-700 p-2 rounded-md"
+                                        >
+                                          {script.id && (
+                                            <p className="font-medium">
+                                              ID: {script.id}
+                                            </p>
+                                          )}
+                                          {script.contentSnippet && (
+                                            <p>
+                                              Snippet:{" "}
+                                              <pre className="whitespace-pre-wrap text-xs bg-gray-100 dark:bg-gray-600 p-1 rounded w-full overflow-x-auto">
+                                                <code>
+                                                  {script.contentSnippet}
+                                                </code>
+                                              </pre>
+                                            </p>
+                                          )}
+                                          <p>Status: {script.status}</p>
+                                        </div>
+                                      )
+                                    )}
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              </div>
+                            )}
+
+                            <div className="mt-4 space-y-2">
+                              {renderMetric(
+                                "Google Analytics Tag",
+                                thirdPartyScriptsResult.hasGATag
+                                  ? "Found"
+                                  : "Not Found, need to check manually"
+                              )}
+                              {renderMetric(
+                                "Google Tag Manager Tag",
+                                thirdPartyScriptsResult.hasGTMTag
+                                  ? "Found"
+                                  : "Not Found, need to check manually"
+                              )}
+                              {thirdPartyScriptsResult.hasGTMTag &&
+                                thirdPartyScriptsResult.gtmId && (
+                                  <div className="flex justify-between items-center py-1">
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-4">
+                                      GTM ID:
+                                    </span>
+                                    <span className="text-sm text-gray-900 dark:text-gray-100">
+                                      {thirdPartyScriptsResult.gtmId}
+                                    </span>
+                                  </div>
+                                )}
+                              {renderMetric(
+                                "Plausible Analytics Tag",
+                                thirdPartyScriptsResult.hasPlausibleTag
+                                  ? "Found"
+                                  : "Not Found, need to check manually"
+                              )}
+                            </div>
+                          </>
+                        ) : thirdPartyScriptsLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Click 'Scan Website' to analyze third-party scripts.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                  {/* Share Social */}
+                  <Card className="w-1/2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xl">Share Social</CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          openRawDataDialog("Share Social", shareSocialResult)
+                        }
+                        disabled={!shareSocialResult}
+                        className="ml-auto"
+                      >
+                        View Raw Data
+                      </Button>
+                      {shareSocialLoading && <Skeleton className="h-5 w-20" />}
+                      {!shareSocialLoading &&
+                        shareSocialResult &&
+                        renderScoreBadge(
+                          calculateScore(shareSocialResult.errors)
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      {shareSocialError ? (
+                        <p className="text-red-500">
+                          Error: {shareSocialError}
+                        </p>
+                      ) : shareSocialResult ? (
+                        <>
+                          {renderMetric("OG Title", shareSocialResult.ogTitle)}
+                          {renderMetric(
+                            "OG Description",
+                            shareSocialResult.ogDescription
+                          )}
+                          {shareSocialResult.ogImage && (
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                OG Image:
+                              </span>
+                              <img
+                                src={shareSocialResult.ogImage}
+                                alt={
+                                  shareSocialResult.ogTitle ||
+                                  "Open Graph Image"
+                                }
+                                className="max-w-[300px] object-contain rounded-md"
+                              />
+                            </div>
+                          )}
+                          {!shareSocialResult.ogImage && (
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                OG Image:
+                              </span>
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                                N/A
+                              </span>
+                            </div>
+                          )}
+                          {renderMetric(
+                            "Twitter Title",
+                            shareSocialResult.twitterTitle
+                          )}
+                          {renderMetric(
+                            "Twitter Description",
+                            shareSocialResult.twitterDescription
+                          )}
+                          {shareSocialResult.twitterImage && (
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Twitter Image:
+                              </span>
+                              <img
+                                src={shareSocialResult.twitterImage}
+                                alt={
+                                  shareSocialResult.twitterTitle ||
+                                  "Twitter Image"
+                                }
+                                className="max-w-[300px] object-contain rounded-md"
+                              />
+                            </div>
+                          )}
+                          {!shareSocialResult.twitterImage && (
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Twitter Image:
+                              </span>
+                              <span className="text-sm text-gray-900 dark:text-gray-100">
+                                N/A
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      ) : shareSocialLoading ? (
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-4 w-full" />
+                        </div>
+                      ) : (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                          Click 'Scan Website' to analyze social sharing data.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Raw Data Dialog */}
       <AlertDialog open={showRawDataDialog} onOpenChange={setShowRawDataDialog}>
         <AlertDialogContent className="sm:max-w-[800px]">
-          <AlertDialogHeader>
+          <AlertDialogHeader className="w-full overflow-auto">
             <AlertDialogTitle>{rawDataTitle} - Raw Data</AlertDialogTitle>
             <AlertDialogDescription>
               <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-sm overflow-x-auto max-h-[60vh]">
@@ -2625,77 +3005,6 @@ export default function Home() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* External Tools Section */}
-      <Card className="w-full max-w-[1440px] shadow-lg mt-8 mb-8">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">
-            External Tools for Further Research
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            {
-              name: "SSL Labs",
-              url: `https://www.ssllabs.com/ssltest/analyze.html?d=${url}`,
-            },
-            {
-              name: "Google PageSpeed Insights",
-              url: `https://pagespeed.web.dev/report?url=${url}`,
-            },
-            {
-              name: "Google Mobile-Friendly Test",
-              url: `https://search.google.com/test/mobile-friendly?url=${url}`,
-            },
-            {
-              name: "Internet Archive Wayback Machine",
-              url: `https://web.archive.org/web/*/${url}`,
-            },
-            {
-              name: "Whois Lookup",
-              url: `https://whois.domaintools.com/${
-                url ? new URL(displayUrlForTools).hostname : ""
-              }`,
-            },
-            {
-              name: "DNS Checker",
-              url: `https://dnschecker.org/#A/${
-                url ? new URL(displayUrlForTools).hostname : ""
-              }`,
-            },
-            {
-              name: "SecurityHeaders.com",
-              url: `https://securityheaders.com/?q=${url}`,
-            },
-            {
-              name: "VirusTotal",
-              url: `https://www.virustotal.com/gui/url/${url}`,
-            },
-            {
-              name: "Google Search Console",
-              url: `https://search.google.com/search-console/about`,
-            },
-            {
-              name: "Bing Webmaster Tools",
-              url: `https://www.bing.com/webmasters/about`,
-            },
-          ].map((tool, idx) => (
-            <Card key={idx}>
-              <CardContent className="p-4 flex flex-col items-center justify-center space-y-2">
-                <h3 className="font-semibold text-lg">{tool.name}</h3>
-                <a
-                  href={tool.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  Analyze with {tool.name}
-                </a>
-              </CardContent>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
     </div>
   );
 }
